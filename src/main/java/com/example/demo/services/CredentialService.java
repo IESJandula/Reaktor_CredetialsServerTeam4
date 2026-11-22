@@ -8,6 +8,7 @@ import com.example.demo.utils.Constants;
 import com.example.demo.utils.CredencialError;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -20,6 +21,9 @@ public class CredentialService
 
     @Autowired
     private CredentialRepository credentialRepository;
+    @Autowired
+    private PasswordEncoder passwordEncoder; // inyecta la interfaz, Spring te da tu Bean
+
 
 
     public void crearCredencial(CredencialPassDto credencialPassDto) throws CredencialError {
@@ -71,7 +75,7 @@ public class CredentialService
         credentialPassEntity.setUbicacion(credencialPassDto.getUbicacion());
         credentialPassEntity.setUrl(credencialPassDto.getUrl());
         credentialPassEntity.setDescripcion(credencialPassDto.getDescripcion());
-        credentialPassEntity.setPassword(credencialPassDto.getPassword());
+        credentialPassEntity.setPassword(passwordEncoder.encode(credencialPassDto.getPassword()));
         credentialPassEntity.setUsuario(credencialPassDto.getUsuario());
 
         credentialRepository.saveAndFlush(credentialPassEntity);
@@ -83,7 +87,8 @@ public class CredentialService
 
     public List<CredencialDTO> listarCredenciales()throws CredencialError{
         List<CredencialDTO> credencialDTOList = this.credentialRepository.obtenerCredenciales();
-        if (credencialDTOList == null){
+        if (credencialDTOList == null)
+        {
             String errorString = "lista nula o vacia";
             log.error(errorString);
 
@@ -142,7 +147,8 @@ public class CredentialService
             log.error(error);
             throw new CredencialError(Constants.ERROR_USER_NULL_OR_EMPTY,error);
         }
-        if (credencialDTO.getUbicacion()==null && credencialDTO.getUrl()==null || credencialDTO.getUrl().isEmpty() && credencialDTO.getUbicacion().isEmpty())
+        if (credencialDTO.getUbicacion()==null && credencialDTO.getUrl()==null
+                || credencialDTO.getUrl().isEmpty() && credencialDTO.getUbicacion().isEmpty())
         {
             String error = "La ubicacion y la url estan vacios o no son validas";
             log.error(error);
@@ -154,7 +160,6 @@ public class CredentialService
             log.error(error);
             throw new CredencialError(Constants.ERROR_UBICATION_NOT_EXIST,error);
         }
-
         CredentialPassEntity credentialPassEntity;
         if (credencialDTO.getUbicacion() == null)
         {
@@ -165,7 +170,6 @@ public class CredentialService
         {
             credentialPassEntity = credentialRepository.findByUbicacion(credencialDTO.getUbicacion());
         }
-
         if (credentialPassEntity != null)
         {
             credentialPassEntity.setUsuario(credencialDTO.getUsuario());
@@ -174,7 +178,6 @@ public class CredentialService
             credentialPassEntity.setUrl(credencialDTO.getUrl());
             credentialPassEntity.setFunciona(funciona);
         }
-
     }
 
 
