@@ -25,4 +25,14 @@ public interface CredentialRepository extends JpaRepository<CredentialPassEntity
     ) FROM CredencialPassEntity c
 """)
     List<CredencialDTO> obtenerCredenciales();
+
+
+    @Query("""
+    SELECT c.password
+    FROM CredencialPassEntity c
+    where c.usuario = :usuario and
+    (c.ubicacion = :ubicacion OR
+    c.url = :url)
+""")
+    String obtenerPassword(String usuario, String ubicacion, String url);
 }

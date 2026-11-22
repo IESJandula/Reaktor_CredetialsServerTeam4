@@ -45,12 +45,14 @@ public class CredentialService
 
             throw new CredencialError(Constants.ERROR_DESCRIPTION_NULL_OR_EMPTY,error);
         }
-        if (credencialPassDto.getUbicacion()==null && credencialPassDto.getUrl()==null
-                || credencialPassDto.getUrl().isEmpty() && credencialPassDto.getUbicacion().isEmpty())
-        {
+        boolean sinUbicacion = (credencialPassDto.getUbicacion() == null || credencialPassDto.getUbicacion().isEmpty());
+        boolean sinUrl = (credencialPassDto.getUrl() == null || credencialPassDto.getUrl().isEmpty());
+
+        // Si NO tiene ubicación Y NO tiene url -> da fallo
+        if (sinUbicacion && sinUrl) {
             String error = "La ubicacion y la url estan vacios o no son validas";
             log.error(error);
-            throw new CredencialError(Constants.ERROR_UBICACION_OR_URL_NULL_OR_EMPTY,error);
+            throw new CredencialError(Constants.ERROR_UBICACION_OR_URL_NULL_OR_EMPTY, error);
         }
         if (!credentialRepository.existByUbicacion(credencialPassDto.getUbicacion()) )
         {
@@ -108,12 +110,14 @@ public class CredentialService
             log.error(error);
             throw new CredencialError(Constants.ERROR_USER_NULL_OR_EMPTY,error);
         }
-        if (credencialDTO.getUbicacion()==null && credencialDTO.getUrl()==null
-                || credencialDTO.getUrl().isEmpty() && credencialDTO.getUbicacion().isEmpty())
-        {
+        boolean sinUbicacion = (credencialDTO.getUbicacion() == null || credencialDTO.getUbicacion().isEmpty());
+        boolean sinUrl = (credencialDTO.getUrl() == null || credencialDTO.getUrl().isEmpty());
+
+        // Si NO tiene ubicación Y NO tiene url -> da fallo
+        if (sinUbicacion && sinUrl) {
             String error = "La ubicacion y la url estan vacios o no son validas";
             log.error(error);
-            throw new CredencialError(Constants.ERROR_UBICACION_OR_URL_NULL_OR_EMPTY,error);
+            throw new CredencialError(Constants.ERROR_UBICACION_OR_URL_NULL_OR_EMPTY, error);
         }
         if (!credentialRepository.existByUbicacion(credencialDTO.getUbicacion()))
         {
@@ -149,18 +153,20 @@ public class CredentialService
             log.error(error);
             throw new CredencialError(Constants.ERROR_USER_NULL_OR_EMPTY,error);
         }
-        if (credencialDTO.getUbicacion()==null && credencialDTO.getUrl()==null
-                || credencialDTO.getUrl().isEmpty() && credencialDTO.getUbicacion().isEmpty())
-        {
+        boolean sinUbicacion = (credencialDTO.getUbicacion() == null || credencialDTO.getUbicacion().isEmpty());
+        boolean sinUrl = (credencialDTO.getUrl() == null || credencialDTO.getUrl().isEmpty());
+
+        // Si NO tiene ubicación Y NO tiene url -> da fallo
+        if (sinUbicacion && sinUrl) {
             String error = "La ubicacion y la url estan vacios o no son validas";
             log.error(error);
-            throw new CredencialError(Constants.ERROR_UBICACION_OR_URL_NULL_OR_EMPTY,error);
+            throw new CredencialError(Constants.ERROR_UBICACION_OR_URL_NULL_OR_EMPTY, error);
         }
         if (!credentialRepository.existByUbicacion(credencialDTO.getUbicacion()))
         {
-            String error = "La ubicacion no existe";
-            log.error(error);
-            throw new CredencialError(Constants.ERROR_UBICATION_NOT_EXIST,error);
+            String errorString = "La ubicacion no existe";
+            log.error(errorString);
+            throw new CredencialError(Constants.ERROR_UBICATION_NOT_EXIST,errorString);
         }
         CredentialPassEntity credentialPassEntity;
         if (credencialDTO.getUbicacion() == null)
@@ -181,6 +187,24 @@ public class CredentialService
             credentialPassEntity.setFunciona(funciona);
         }
     }
+    public String obtenerPassword(CredencialDTO credencialDTO)throws CredencialError{
+        if (credencialDTO.getUsuario()==null || credencialDTO.getUsuario().isEmpty())
+        {
+            String error = "El usuario esta vacio o es null";
+            log.error(error);
+            throw new CredencialError(Constants.ERROR_USER_NULL_OR_EMPTY,error);
+        }
+        boolean sinUbicacion = (credencialDTO.getUbicacion() == null || credencialDTO.getUbicacion().isEmpty());
+        boolean sinUrl = (credencialDTO.getUrl() == null || credencialDTO.getUrl().isEmpty());
 
+        // Si NO tiene ubicación Y NO tiene url -> da fallo
+        if (sinUbicacion && sinUrl) {
+            String error = "La ubicacion y la url estan vacios o no son validas";
+            log.error(error);
+            throw new CredencialError(Constants.ERROR_UBICACION_OR_URL_NULL_OR_EMPTY, error);
+        }
+        return this.credentialRepository.obtenerPassword(credencialDTO.getUsuario(),credencialDTO.getUbicacion(), credencialDTO.getUrl());
+
+    }
 
 }

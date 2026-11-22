@@ -126,6 +126,7 @@ public class CredentialController
         catch (Exception exception)
         {
             String error = "Error generico";
+            log.error(error,exception);
             CredencialError credencialError = new CredencialError(Constants.ERROR_GENERIC,error,exception);
             return ResponseEntity.status(500).body(credencialError.getBodyExceptionMessage());
         }
@@ -138,15 +139,26 @@ public class CredentialController
         // Lógica para actualizar el campo 'funciona' según el filtro y la cabecera
         try
         {
-
+            this.credentialService.actualizarFuncionamiento(credencialDto, funciona);
+            return ResponseEntity.ok().build();
         }
         catch (CredencialError credencialError)
         {
-
+            if (credencialError.getCode().equals(Constants.ERROR_USER_NULL_OR_EMPTY)){
+                return ResponseEntity.status(400).body(credencialError.getBodyExceptionMessage());
+            }
+            if (credencialError.getCode().equals(Constants.ERROR_UBICACION_OR_URL_NULL_OR_EMPTY)){
+                return ResponseEntity.status(401).body(credencialError.getBodyExceptionMessage());
+            }
+            if (credencialError.getCode().equals(Constants.ERROR_UBICATION_NOT_EXIST)){
+                return ResponseEntity.status(402).body(credencialError.getBodyExceptionMessage());
+            }
+            return ResponseEntity.badRequest().build();
         }
         catch (Exception exception)
         {
             String error = "Error generico";
+            log.error(error,exception);
             CredencialError credencialError = new CredencialError(Constants.ERROR_GENERIC,error,exception);
             return ResponseEntity.status(500).body(credencialError.getBodyExceptionMessage());
         }
@@ -159,11 +171,18 @@ public class CredentialController
         // Lógica para obtener la contraseña como cadena JSON (String)
         try
         {
-
+            String password = this.credentialService.obtenerPassword(credencialDto);
+            return ResponseEntity.ok().body(password);
         }
         catch (CredencialError credencialError)
         {
-
+            if (credencialError.getCode().equals(Constants.ERROR_USER_NULL_OR_EMPTY)){
+                return ResponseEntity.status(400).body(credencialError.getBodyExceptionMessage());
+            }
+            if (credencialError.getCode().equals(Constants.ERROR_UBICACION_OR_URL_NULL_OR_EMPTY)){
+                return ResponseEntity.status(401).body(credencialError.getBodyExceptionMessage());
+            }
+            return ResponseEntity.badRequest().body(credencialError.getBodyExceptionMessage());
         }
         catch (Exception exception)
         {
