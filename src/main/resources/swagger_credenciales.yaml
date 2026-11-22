@@ -1,0 +1,206 @@
+swagger: '2.0'
+host: localhost:8080
+basePath: /credentials
+schemes:
+- http
+- https
+produces:
+- application/json
+info:
+  title: API de gestión de credenciales
+  description: Proyecto Vue.js y Spring Boot para gestión de credenciales
+  version: 1.0.0
+paths:
+  /:
+    post:
+      operationId: crearCredencial
+      description: guarda la credencial con funciona a true. Comprueba en orden usuario, descripcion, ubicacion, url y password. Si los campos tienen valor, comprueba en orden mayúscula, minúscula, dígito y carácter especial.
+      parameters:
+      - name: credencial
+        in: body
+        description: datos de la credencial que se va a registrar.
+        required: true
+        schema:
+          $ref: '#/definitions/CredencialPassDto'
+      responses:
+        200:
+          description: credencial registrada
+        400:
+          description: objeto nulo
+          schema:
+            $ref: '#/definitions/CredencialError'
+        401:
+          description: usuario nulo o vacío
+          schema:
+            $ref: '#/definitions/CredencialError'
+        402:
+          description: descripción nula o vacía
+          schema:
+            $ref: '#/definitions/CredencialError'
+        403:
+          description: la ubicación y la url son nulas o vacía. Una de las dos debe estar rellena
+          schema:
+            $ref: '#/definitions/CredencialError'
+        404:
+          description: la ubicación no existe
+          schema:
+            $ref: '#/definitions/CredencialError'
+        405:
+          description: contraseña nula o vacía
+          schema:
+            $ref: '#/definitions/CredencialError'
+        406:
+          description: la contraseña debe contener al menos 8 caracteres, con una letra mayúscula, minúscula, dígitos y signos de puntuación o símbolos
+          schema:
+            $ref: '#/definitions/CredencialError'
+        500:
+          description: error interno del servidor
+          $ref: '#/definitions/CredencialError'
+    get:
+      operationId: listarCredenciales
+      description: devuelve los datos de las credenciales. Si no hay registros, el array se devuelve vacío
+      responses:
+        200:
+          description: listado de credenciales
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/CredencialDTO'
+        500:
+          description: error interno del servidor
+          $ref: '#/definitions/CredencialError'
+    delete:
+      operationId: eliminarCredenciales
+      description: debe ir relleno el usuario y al menos una de las cabeceras ubicación o URL. Elimina todos los registros encontrados
+      parameters:
+      - name: credencialDto
+        in: body
+        description: filtro con la credencial a borrar
+        required: true
+        schema:
+          $ref: '#/definitions/CredencialDTO'
+      responses:
+        200:
+          description: credenciales eliminadas
+        400:
+          description: usuario nulo o vacío
+          schema:
+            $ref: '#/definitions/CredencialError'
+        401:
+          description: la ubicación y la url son nulas o vacía. Una de las dos debe estar rellena
+          schema:
+            $ref: '#/definitions/CredencialError'        
+        402:
+          description: la ubicación no existe
+          schema:
+            $ref: '#/definitions/CredencialError'
+        500:
+          description: error interno del servidor
+          $ref: '#/definitions/CredencialError'
+    put:
+      operationId: actualizarFuncionamiento
+      description: debe ir relleno el usuario y al menos una de las cabeceras ubicación o URL. Actualiza el campo funciona de todos los registros encontrados
+      parameters:
+      - name: credencialDto
+        in: body
+        description: filtro con la credencial a actualizar
+        required: true
+        schema:
+          $ref: '#/definitions/CredencialDTO'
+      - name: funciona
+        in: header
+        description: true si funciona el credencial y false si ha dejado de funcionar
+        required: true
+        type: boolean
+      responses:
+        200:
+          description: estado actualizado
+        400:
+          description: usuario nulo o vacío
+          schema:
+            $ref: '#/definitions/CredencialError'
+        401:
+          description: la ubicación y la url son nulas o vacía. Una de las dos debe estar rellena
+          schema:
+            $ref: '#/definitions/CredencialError'
+        402:
+          description: la ubicación no existe
+          schema:
+            $ref: '#/definitions/CredencialError'
+        500:
+          description: error interno del servidor
+          $ref: '#/definitions/CredencialError'
+  /password:
+    get:
+      operationId: obtenerPassword
+      description: debe ir relleno el usuario y al menos una de las cabeceras ubicación o URL.
+      parameters:
+      - name: credencialDto
+        in: body
+        description: filtro con la credencial a actualizar
+        required: true
+        schema:
+          $ref: '#/definitions/CredencialDTO'
+      responses:
+        200:
+          description: Contraseña de la credencial como cadena JSON.
+          schema:
+            type: string
+        400:
+          description: usuario nulo o vacío
+          schema:
+            $ref: '#/definitions/CredencialError'
+        401:
+          description: la ubicación y la url son nulas o vacía. Una de las dos debe estar rellena
+          schema:
+            $ref: '#/definitions/CredencialError'
+        402:
+          description: la ubicación no existe
+          schema:
+            $ref: '#/definitions/CredencialError'
+        403:
+          description: la búsqueda coincide con más de una credencial.
+          schema:
+            $ref: '#/definitions/CredencialError'
+        500:
+          description: error interno del servidor
+          $ref: '#/definitions/CredencialError'
+
+definitions:
+  CredencialDTO:
+    type: object
+    description: datos de una credencial incluidos en el listado.
+    properties:
+      usuario:
+        type: string
+        description: usuario de la credencial
+      descripcion:
+        type: string
+        description: descripción sobre la credencial
+      ubicacion:
+        type: string
+        description: ubicación de la credencial
+      url:
+        type: string
+        description: URL asociada a la credencial
+  CredencialPassDto:
+    allOf:
+    - $ref: '#/definitions/CredencialDTO'
+    - type: object
+      properties:
+        password:
+          type: string
+          description: Contraseña con al menos 8 caracteres, que incluye al menos una mayúscula, una minúscula, un dígito y un signo de puntuación o símbolo.
+  CredencialError:
+    type: object
+    description: formato de las respuestas de error
+    properties:
+      codigo:
+        type: string
+        description: identificador del error
+      mensaje:
+        type: string
+        description: descripción del error
+      stackTrace:
+        type: string
+        description: traza del error
