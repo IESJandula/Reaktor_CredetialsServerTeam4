@@ -163,12 +163,10 @@ public class CredentialService
         }
         if (credentialPassEntity != null)
         {
-            credentialPassEntity.setUsuario(credencialDTO.getUsuario());
-            credentialPassEntity.setDescripcion(credencialDTO.getDescripcion());
-            credentialPassEntity.setUbicacion(credencialDTO.getUbicacion());
-            credentialPassEntity.setUrl(credencialDTO.getUrl());
             credentialPassEntity.setFunciona(funciona);
+            credentialRepository.saveAndFlush(credentialPassEntity);
         }
+
     }
     public String obtenerPassword(CredencialDTO credencialDTO)throws CredencialError{
         if (credencialDTO.getUsuario()==null || credencialDTO.getUsuario().isEmpty())
